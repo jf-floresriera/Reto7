@@ -216,15 +216,15 @@ class TicTacToeViewModel(
         when (winner) {
             GameWinner.HUMAN -> {
                 newHumanWins++
-                soundManager.playWinSound(current.soundEnabled)
+                soundManager.playWinSound(current.soundEnabled, current.selectedTheme)
             }
             GameWinner.COMPUTER -> {
                 newComputerWins++
-                soundManager.playLoseSound(current.soundEnabled)
+                soundManager.playLoseSound(current.soundEnabled, current.selectedTheme)
             }
             GameWinner.ONLINE_OPPONENT -> {
                 newComputerWins++
-                soundManager.playLoseSound(current.soundEnabled)
+                soundManager.playLoseSound(current.soundEnabled, current.selectedTheme)
             }
             GameWinner.TIE -> {
                 newTies++

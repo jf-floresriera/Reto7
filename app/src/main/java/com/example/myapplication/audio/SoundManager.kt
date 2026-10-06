@@ -49,26 +49,62 @@ class SoundManager {
     /**
      * Reproduce el sonido de victoria (aplica local, vs CPU o multijugador online).
      */
-    fun playWinSound(soundEnabled: Boolean) {
+    fun playWinSound(soundEnabled: Boolean, theme: AppTheme) {
         if (!soundEnabled) return
         scope.launch {
-            // Tono victorioso: Arpegio ascendente
-            playTone(frequency = 523.25, durationMs = 150) // Do5
-            playTone(frequency = 659.25, durationMs = 150) // Mi5
-            playTone(frequency = 783.99, durationMs = 350) // Sol5
+            when (theme) {
+                AppTheme.CLASSIC -> {
+                    playTone(frequency = 523.25, durationMs = 150) // Do5
+                    playTone(frequency = 659.25, durationMs = 150) // Mi5
+                    playTone(frequency = 783.99, durationMs = 350) // Sol5
+                }
+                AppTheme.COSTA -> {
+                    playTone(frequency = 783.99, durationMs = 150) 
+                    playTone(frequency = 880.00, durationMs = 150) 
+                    playTone(frequency = 1046.50, durationMs = 350)
+                }
+                AppTheme.LLANO -> {
+                    playTone(frequency = 329.63, durationMs = 150) 
+                    playTone(frequency = 440.00, durationMs = 150) 
+                    playTone(frequency = 659.25, durationMs = 350)
+                }
+                AppTheme.VAQUERO -> {
+                    playTone(frequency = 659.25, durationMs = 150) 
+                    playTone(frequency = 783.99, durationMs = 150) 
+                    playTone(frequency = 987.77, durationMs = 350) 
+                }
+            }
         }
     }
 
     /**
      * Reproduce el sonido de derrota (aplica cuando CPU gana o cuando oponente online gana).
      */
-    fun playLoseSound(soundEnabled: Boolean) {
+    fun playLoseSound(soundEnabled: Boolean, theme: AppTheme) {
         if (!soundEnabled) return
         scope.launch {
-            // Tono triste: Notas graves descendentes
-            playTone(frequency = 392.00, durationMs = 200) // Sol4
-            playTone(frequency = 329.63, durationMs = 200) // Mi4
-            playTone(frequency = 261.63, durationMs = 400) // Do4
+            when (theme) {
+                AppTheme.CLASSIC -> {
+                    playTone(frequency = 392.00, durationMs = 200) // Sol4
+                    playTone(frequency = 329.63, durationMs = 200) // Mi4
+                    playTone(frequency = 261.63, durationMs = 400) // Do4
+                }
+                AppTheme.COSTA -> {
+                    playTone(frequency = 659.25, durationMs = 200) 
+                    playTone(frequency = 587.33, durationMs = 200) 
+                    playTone(frequency = 523.25, durationMs = 400) 
+                }
+                AppTheme.LLANO -> {
+                    playTone(frequency = 261.63, durationMs = 200) 
+                    playTone(frequency = 220.00, durationMs = 200) 
+                    playTone(frequency = 164.81, durationMs = 400) 
+                }
+                AppTheme.VAQUERO -> {
+                    playTone(frequency = 440.00, durationMs = 200) 
+                    playTone(frequency = 392.00, durationMs = 200) 
+                    playTone(frequency = 329.63, durationMs = 400) 
+                }
+            }
         }
     }
 
