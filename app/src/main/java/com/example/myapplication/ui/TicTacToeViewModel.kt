@@ -212,11 +212,15 @@ class TicTacToeViewModel(
                 newComputerWins++
                 soundManager.playLoseSound(current.soundEnabled)
             }
+            GameWinner.ONLINE_OPPONENT -> {
+                newComputerWins++
+                soundManager.playLoseSound(current.soundEnabled)
+            }
             GameWinner.TIE -> {
                 newTies++
                 soundManager.playTieSound(current.soundEnabled)
             }
-            GameWinner.NONE -> {}
+            else -> {}
         }
 
         preferencesManager.saveScores(newHumanWins, newComputerWins, newTies)

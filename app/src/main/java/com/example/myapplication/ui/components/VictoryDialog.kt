@@ -32,8 +32,10 @@ fun VictoryDialog(
     if (winner == GameWinner.NONE) return
 
     val (title, message) = when (winner) {
-        GameWinner.HUMAN -> Pair("Victoria del Jugador", "Has derrotado a la Computadora.")
+        GameWinner.HUMAN -> Pair("Victoria", "¡Felicidades, has ganado!")
         GameWinner.COMPUTER -> Pair("Victoria de la CPU", "La computadora ha ganado esta partida.")
+        GameWinner.ONLINE_OPPONENT -> Pair("Derrota Online", "Tu rival ha ganado la partida.")
+        GameWinner.PLAYER_2 -> Pair("Gana Jugador 2", "El jugador 2 local ha ganado.")
         GameWinner.TIE -> Pair("Empate", "La partida ha finalizado sin un ganador.")
         GameWinner.NONE -> Pair("", "")
     }

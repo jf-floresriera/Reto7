@@ -123,14 +123,14 @@ private fun TileCell(
     }
 
     val displaySymbol = when (tile) {
-        BoardTile.HUMAN -> selectedTheme.player1Symbol
-        BoardTile.COMPUTER -> selectedTheme.player2Symbol
+        BoardTile.HUMAN, BoardTile.PLAYER_X -> selectedTheme.player1Symbol
+        BoardTile.COMPUTER, BoardTile.PLAYER_O -> selectedTheme.player2Symbol
         BoardTile.EMPTY -> ""
     }
 
     val symbolColor = when (tile) {
-        BoardTile.HUMAN -> player1Color
-        BoardTile.COMPUTER -> player2Color
+        BoardTile.HUMAN, BoardTile.PLAYER_X -> player1Color
+        BoardTile.COMPUTER, BoardTile.PLAYER_O -> player2Color
         BoardTile.EMPTY -> Color.Transparent
     }
 
