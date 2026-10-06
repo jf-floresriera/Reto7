@@ -76,31 +76,41 @@ class TicTacToeViewModel(
             if (!currentState.isOnlineMyTurn || currentState.onlineRoomId == null || currentState.isWaitingForOpponent) return
 
             // El jugador actual marca, si es su turno. Depende de si creó la sala o se unió
-            val activeTile = if (multiplayerService.currentUserId == currentState.isHumanTurn.toString()) BoardTile.PLAYER_X else BoardTile.PLAYER_O // Ajuste necesario, lo hacemos simplificado abajo
+            val iAmX = (multiplayerService.currentUserId == currentState.onlineRoomId) // Esto es un acercamiento, lo evaluaremos mejor con el turno actual
+            
+            // Asumiendo que el que mueve SIEMPRE coloca su ficha correspondiente a su rol.
+            // Para simplificar, si isHumanTurn es true, es porque le tocaba a X.
+            val activeTile = if (currentState.isHumanTurn) BoardTile.PLAYER_X else BoardTile.PLAYER_O
 
             val updatedBoard = currentState.board.toMutableList().apply {
-                set(index, if(currentState.isHumanTurn) BoardTile.PLAYER_X else BoardTile.PLAYER_O)
+                set(index, activeTile)
             }
             
             // Asignamos la cadena a enviar a Firebase
             val onlineBoard = updatedBoard.map { 
                 when(it) {
-                    BoardTile.PLAYER_X -> "X"
-                    BoardTile.PLAYER_O -> "O"
+                    BoardTile.PLAYER_X, BoardTile.HUMAN -> "X"
+                    BoardTile.PLAYER_O, BoardTile.COMPUTER -> "O"
                     else -> ""
                 }
             }
             
             // Evaluamos si hubo gane
             val (winner, winningLine) = gameEngine.checkWinner(updatedBoard)
-            val nextTurn = if(winner == GameWinner.NONE) "" else "" // Placeholder para simplificar lógica de turnos arriba en observeRoom
+            
+            // Alternar turno para Firebase: Si era mi turno y yo acabo de jugar, el siguiente turno es del oponente.
+            // Necesitamos el ID del oponente.
+            // Esto lo maneja Firebase en el update, mandaremos "nextTurnId"
+            
+            // En vez de lidiar con turnos en cliente de forma compleja, delegamos el toggle al observeRoom.
+            // Aquí solo subimos el tablero y avisamos de cambio de turno.
+            val nextTurn = if(currentState.isHumanTurn) "OPPONENT" else "CREATOR" // Simplificación temporal
 
             // Actualizamos en Firebase
             multiplayerService.updateBoard(currentState.onlineRoomId, onlineBoard, nextTurn)
             
             if (winner != GameWinner.NONE) {
-                 // Dejamos que el observer (observeRoom) finalice la partida en BD o lo hacemos aquí
-                 multiplayerService.finishGame(currentState.onlineRoomId, if(currentState.isHumanTurn) multiplayerService.currentUserId else "opponentId")
+                 multiplayerService.finishGame(currentState.onlineRoomId, multiplayerService.currentUserId)
             }
 
             return
@@ -239,14 +249,14 @@ class TicTacToeViewModel(
     }
 
     fun createOnlineGame() {
-        val roomId = multiplayerService.createRoom("Jugador Anfitrión")
+        val roomId = multiplayerService.createRoom(_uiState.value.playerName)
         _uiState.update { 
             it.copy(
                 gameMode = GameMode.ONLINE_MULTIPLAYER,
                 onlineRoomId = roomId,
                 isWaitingForOpponent = true,
-                onlineStatusText = "Esperando oponente en sala: $roomId",
-                isHumanTurn = true, // X empieza
+                onlineStatusText = "Esperando a un rival...",
+                isHumanTurn = true, // X empieza (el creador)
                 isOnlineMyTurn = true // Creador de sala empieza
             ) 
         }
@@ -254,14 +264,14 @@ class TicTacToeViewModel(
     }
 
     fun joinOnlineGame(room: GameRoom) {
-        multiplayerService.joinRoom(room.id, "Jugador Invitado")
+        multiplayerService.joinRoom(room.id, _uiState.value.playerName)
         _uiState.update { 
             it.copy(
                 gameMode = GameMode.ONLINE_MULTIPLAYER,
                 onlineRoomId = room.id,
                 isWaitingForOpponent = false,
                 onlineStatusText = "Jugando contra ${room.creatorName}",
-                isHumanTurn = false, // X empieza, oponente es O
+                isHumanTurn = false, // El creador es X (true), así que el que se une ve el turno inicial como del otro
                 isOnlineMyTurn = false // El creador empieza
             ) 
         }
@@ -287,23 +297,23 @@ class TicTacToeViewModel(
                 }
                 
                 val iAmX = (room.creatorId == multiplayerService.currentUserId)
-                val isMyTurnNow = (room.turn == multiplayerService.currentUserId)
+                val isMyTurnNow = if (iAmX) room.turn == "CREATOR" else room.turn == "OPPONENT"
                 
                 val gameIsOver = room.status == "finished"
-                val winner = when (room.winner) {
-                    multiplayerService.currentUserId -> GameWinner.HUMAN
-                    "draw" -> GameWinner.TIE
-                    null -> GameWinner.NONE
-                    else -> GameWinner.ONLINE_OPPONENT
+                val winner = when {
+                    room.winner == "draw" -> GameWinner.TIE
+                    room.winner == null -> GameWinner.NONE
+                    room.winner == multiplayerService.currentUserId -> GameWinner.HUMAN // Gané yo
+                    else -> GameWinner.ONLINE_OPPONENT // Ganó el otro
                 }
 
                 _uiState.update {
                     it.copy(
                         board = newBoard,
                         isWaitingForOpponent = room.status == "waiting",
-                        onlineStatusText = if (room.status == "waiting") "Esperando oponente..." else if (gameIsOver) "Juego terminado" else "Tu turno: $isMyTurnNow",
+                        onlineStatusText = if (room.status == "waiting") "Esperando a un rival..." else if (gameIsOver) "Partida terminada" else if(isMyTurnNow) "¡Tu turno!" else "Esperando movimiento...",
                         isOnlineMyTurn = isMyTurnNow,
-                        isHumanTurn = (room.turn == room.creatorId),
+                        isHumanTurn = (room.turn == "CREATOR"),
                         winner = winner
                     )
                 }

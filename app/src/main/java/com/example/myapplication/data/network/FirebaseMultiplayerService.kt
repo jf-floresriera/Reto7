@@ -55,7 +55,7 @@ class FirebaseMultiplayerService {
             creatorId = currentUserId,
             creatorName = creatorName,
             status = "waiting",
-            turn = currentUserId // El creador siempre empieza
+            turn = "CREATOR" // El creador siempre empieza
         )
         database.child(roomId).setValue(room)
         return roomId
@@ -68,7 +68,8 @@ class FirebaseMultiplayerService {
         val updates = mapOf(
             "opponentId" to currentUserId,
             "opponentName" to opponentName,
-            "status" to "playing"
+            "status" to "playing",
+            "turn" to "CREATOR" // Turno inicial del creador
         )
         database.child(roomId).updateChildren(updates)
     }
