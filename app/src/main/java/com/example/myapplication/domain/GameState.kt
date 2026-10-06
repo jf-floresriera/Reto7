@@ -32,7 +32,9 @@ data class GameState(
     val onlineRoomId: String? = null,     // ID de la sala actual si está conectado
     val isWaitingForOpponent: Boolean = false, // Creador esperando
     val onlineStatusText: String = "",    // Mensaje descriptivo de estado
-    val isOnlineMyTurn: Boolean = false   // Define si en online es el turno de este dispositivo
+    val isOnlineMyTurn: Boolean = false,  // Define si en online es el turno de este dispositivo
+    val showNameInputDialog: Boolean = false, // Pide el nombre de usuario
+    val playerName: String = "Jugador"    // Nombre de este usuario
 ) {
     val isGameOver: Boolean
         get() = winner != GameWinner.NONE

@@ -312,7 +312,27 @@ class TicTacToeViewModel(
     }
     
     fun toggleOnlineLobby(show: Boolean) {
-        _uiState.update { it.copy(showOnlineLobby = show) }
+        if (show && _uiState.value.playerName == "Jugador") {
+            _uiState.update { it.copy(showNameInputDialog = true) }
+        } else {
+            _uiState.update { it.copy(showOnlineLobby = show) }
+        }
+    }
+
+    fun setPlayerNameAndShowLobby(name: String) {
+        val finalName = if (name.isBlank()) "Jugador" else name
+        _uiState.update { 
+            it.copy(
+                playerName = finalName,
+                showNameInputDialog = false,
+                showOnlineLobby = true
+            ) 
+        }
+    }
+    
+    fun dismissNameInput() {
+        _uiState.update { it.copy(showNameInputDialog = false) }
+        setGameMode(GameMode.ONE_PLAYER)
     }
 
     fun resetBoard() {

@@ -20,7 +20,7 @@ data class GameRoom(
     val id: String = "",
     val creatorId: String = "",
     val opponentId: String? = null,
-    val creatorName: String = "Jugador 1",
+    val creatorName: String = "",
     val opponentName: String? = null,
     val status: String = "waiting", // "waiting", "playing", "finished"
     val board: List<String> = List(9) { "" }, // "" para vacío, "X" o "O"

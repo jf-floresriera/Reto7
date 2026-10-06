@@ -61,6 +61,7 @@ import com.example.myapplication.ui.components.ScoreBoardCard
 import com.example.myapplication.ui.components.ThemeDialog
 import com.example.myapplication.ui.components.VictoryDialog
 import com.example.myapplication.ui.components.OnlineLobbyDialog
+import com.example.myapplication.ui.components.PlayerNameDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,6 +214,13 @@ fun TicTacToeScreen(
             )
         }
         
+        if (uiState.showNameInputDialog) {
+            PlayerNameDialog(
+                onNameSubmit = { name -> viewModel.setPlayerNameAndShowLobby(name) },
+                onDismiss = { viewModel.dismissNameInput() }
+            )
+        }
+
         if (uiState.showOnlineLobby) {
             OnlineLobbyDialog(
                 theme = uiState.selectedTheme,
