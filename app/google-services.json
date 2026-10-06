@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "599422643295",
+    "project_id": "reto7-20ae5",
+    "storage_bucket": "reto7-20ae5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:599422643295:android:22e313202ccb7ecd507fea",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLVmqeB4a5rsVL9VJGP5DdtAWnKdQI524"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
