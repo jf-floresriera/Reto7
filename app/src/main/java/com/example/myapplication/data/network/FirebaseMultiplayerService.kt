@@ -116,6 +116,19 @@ class FirebaseMultiplayerService {
     }
 
     /**
+     * Reinicia la partida en la misma sala para jugar de nuevo.
+     */
+    fun restartGame(roomId: String) {
+        val updates = mapOf<String, Any?>(
+            "board" to List(9) { "" },
+            "status" to "playing",
+            "winner" to null,
+            "turn" to "CREATOR"
+        )
+        database.child(roomId).updateChildren(updates)
+    }
+
+    /**
      * Elimina la sala, útil cuando un jugador se desconecta o sale.
      */
     fun leaveRoom(roomId: String) {

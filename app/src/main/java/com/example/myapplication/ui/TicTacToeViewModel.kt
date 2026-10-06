@@ -300,22 +300,31 @@ class TicTacToeViewModel(
                 val isMyTurnNow = if (iAmX) room.turn == "CREATOR" else room.turn == "OPPONENT"
                 
                 val gameIsOver = room.status == "finished"
-                val winner = when {
+                val finalWinner = when {
                     room.winner == "draw" -> GameWinner.TIE
                     room.winner == null -> GameWinner.NONE
                     room.winner == multiplayerService.currentUserId -> GameWinner.HUMAN // Gané yo
                     else -> GameWinner.ONLINE_OPPONENT // Ganó el otro
                 }
 
+                val (_, calculatedWinningLine) = gameEngine.checkWinner(newBoard)
+                val previousWinner = _uiState.value.winner
+
                 _uiState.update {
                     it.copy(
                         board = newBoard,
                         isWaitingForOpponent = room.status == "waiting",
                         onlineStatusText = if (room.status == "waiting") "Esperando a un rival..." else if (gameIsOver) "Partida terminada" else if(isMyTurnNow) "¡Tu turno!" else "Esperando movimiento...",
-                        isOnlineMyTurn = isMyTurnNow,
+                        isOnlineMyTurn = isMyTurnNow && !gameIsOver,
                         isHumanTurn = (room.turn == "CREATOR"),
-                        winner = winner
+                        winner = finalWinner,
+                        winningLine = calculatedWinningLine
                     )
+                }
+
+                // Si la partida apenas terminó, emitimos sonidos y sumamos el score
+                if (previousWinner == GameWinner.NONE && finalWinner != GameWinner.NONE) {
+                    handleGameEnd(newBoard, finalWinner, calculatedWinningLine)
                 }
             }
         }
@@ -346,14 +355,19 @@ class TicTacToeViewModel(
     }
 
     fun resetBoard() {
-        _uiState.update {
-            it.copy(
-                board = List(9) { BoardTile.EMPTY },
-                isHumanTurn = true,
-                winner = GameWinner.NONE,
-                winningLine = null,
-                isCpuThinking = false
-            )
+        val currentState = _uiState.value
+        if (currentState.gameMode == GameMode.ONLINE_MULTIPLAYER && currentState.onlineRoomId != null) {
+            multiplayerService.restartGame(currentState.onlineRoomId)
+        } else {
+            _uiState.update {
+                it.copy(
+                    board = List(9) { BoardTile.EMPTY },
+                    isHumanTurn = true,
+                    winner = GameWinner.NONE,
+                    winningLine = null,
+                    isCpuThinking = false
+                )
+            }
         }
     }
 
@@ -365,6 +379,10 @@ class TicTacToeViewModel(
 
     fun setGameMode(gameMode: GameMode) {
         preferencesManager.saveGameMode(gameMode)
+        if (gameMode != GameMode.ONLINE_MULTIPLAYER) {
+            roomObserveJob?.cancel()
+            _uiState.update { it.copy(onlineRoomId = null) }
+        }
         _uiState.update { it.copy(gameMode = gameMode) }
         resetBoard()
     }
