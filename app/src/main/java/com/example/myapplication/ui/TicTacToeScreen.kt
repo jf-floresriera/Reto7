@@ -92,7 +92,7 @@ fun TicTacToeScreen(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "Tres en Raya - Reto 6",
+                            text = "Tres en Raya - Reto 7",
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
